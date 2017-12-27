@@ -27,7 +27,7 @@
         android:supportsRtl="true">
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="pEq0STgt6dXkR6cNg61pPDTt" />
+            android:value="Dib4t3WVEBzTUNv2irIc0V3UbDMc8dFM" />
         <service
             android:name="com.baidu.trace.LBSTraceService"
             android:enabled="true"
