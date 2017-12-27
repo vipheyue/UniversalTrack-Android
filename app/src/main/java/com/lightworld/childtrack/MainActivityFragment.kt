@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.baidu.trace.LBSTraceClient
 import com.baidu.trace.Trace
 import com.baidu.trace.model.OnTraceListener
@@ -51,7 +52,9 @@ class MainActivityFragment : Fragment() {
         }
 
         // 开启服务回调
-        override fun onStartTraceCallback(status: Int, message: String) {}
+        override fun onStartTraceCallback(status: Int, message: String) {
+            Toast.makeText(MyApplication.get(), "开启服务回调", Toast.LENGTH_SHORT).show()
+        }
 
         // 停止服务回调
         override fun onStopTraceCallback(status: Int, message: String) {}

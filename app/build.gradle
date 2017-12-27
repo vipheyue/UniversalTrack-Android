@@ -35,4 +35,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation project(':baidutrace_v3_0_7_lib')
     compile 'com.orhanobut:logger:2.1.1'
+    compile "org.jetbrains.anko:anko-commons:0.10.3"
+
 }
