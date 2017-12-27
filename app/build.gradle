@@ -36,5 +36,6 @@ dependencies {
     implementation project(':baidutrace_v3_0_7_lib')
     compile 'com.orhanobut:logger:2.1.1'
     compile "org.jetbrains.anko:anko-commons:0.10.3"
+    compile "org.jetbrains.anko:anko-coroutines:0.10.3"
 
 }

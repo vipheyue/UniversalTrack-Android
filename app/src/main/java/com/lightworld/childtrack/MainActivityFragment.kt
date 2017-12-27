@@ -9,8 +9,14 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.baidu.trace.LBSTraceClient
 import com.baidu.trace.Trace
+import com.baidu.trace.api.track.LatestPointRequest
+import com.baidu.trace.api.track.LatestPointResponse
+import com.baidu.trace.api.track.OnTrackListener
 import com.baidu.trace.model.OnTraceListener
+import com.baidu.trace.model.ProcessOption
 import com.baidu.trace.model.PushMessage
+import org.jetbrains.anko.doAsync
+import java.util.concurrent.atomic.AtomicInteger
 
 
 /**
@@ -19,6 +25,11 @@ import com.baidu.trace.model.PushMessage
 class MainActivityFragment : Fragment() {
     private lateinit var mTrace: Trace
     private lateinit var mTraceClient: LBSTraceClient
+    /**
+     * 轨迹监听器(用于接收纠偏后实时位置回调)
+     */
+//    private var trackListener: OnTrackListener? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
@@ -40,7 +51,29 @@ class MainActivityFragment : Fragment() {
             mTraceClient.startGather(mTraceListener)
         }, 3000)
 
-        //4.处理采集数据
+        //4.处理采集数据 异步 查询历史轨迹 功能需要单独提出来
+        Handler().postDelayed(Runnable {
+            activity.doAsync {
+                val request = LatestPointRequest(AtomicInteger().incrementAndGet(), serviceId, entityName)
+                val processOption = ProcessOption()
+                processOption.isNeedDenoise = true
+                processOption.radiusThreshold = 100
+                request.processOption = processOption
+                mTraceClient.queryLatestPoint(request, trackListener)
+            }
+        }, 4000)
+
+
+    }
+
+    /**
+     * 轨迹监听器(用于接收纠偏后实时位置回调)
+     */
+    object trackListener : OnTrackListener() {
+        override fun onLatestPointCallback(p0: LatestPointResponse?) {
+            super.onLatestPointCallback(p0)
+
+        }
 
     }
 
