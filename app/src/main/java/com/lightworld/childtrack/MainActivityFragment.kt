@@ -86,7 +86,7 @@ class MainActivityFragment : Fragment() {
 
         // 开启服务回调
         override fun onStartTraceCallback(status: Int, message: String) {
-            Toast.makeText(MyApplication.get(), "开启服务回调", Toast.LENGTH_SHORT).show()
+            Toast.makeText(MyApplication.INSTANCE, "开启服务回调", Toast.LENGTH_SHORT).show()
         }
 
         // 停止服务回调

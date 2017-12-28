@@ -13,3 +13,5 @@ var isNeedObjectStorage = false
 var gatherInterval = 5
 // 打包回传周期(单位:秒)
 var packInterval = 10
+
+var configAgreeLicense by Preference(MyApplication.INSTANCE, "configAgreeLicense", false)

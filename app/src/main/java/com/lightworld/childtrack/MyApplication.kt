@@ -12,14 +12,12 @@ import com.orhanobut.logger.Logger
 
 class MyApplication : Application() {
     override fun onCreate() {
-        INSTANCE = this
         super.onCreate()
+        INSTANCE = this
         Logger.addLogAdapter(AndroidLogAdapter())
     }
 
     companion object {
-        private lateinit var INSTANCE: MyApplication
-
-        fun get(): MyApplication = INSTANCE
+         lateinit var INSTANCE: MyApplication
     }
 }
