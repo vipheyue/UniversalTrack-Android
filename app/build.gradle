@@ -40,6 +40,7 @@ dependencies {
     compile "org.jetbrains.anko:anko-commons:0.10.3"
     compile "org.jetbrains.anko:anko-coroutines:0.10.3"
     compile 'com.flyco.roundview:FlycoRoundView_Lib:1.1.4@aar'
-
+    compile "io.reactivex.rxjava2:rxjava:2.1.7"
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
 
 }

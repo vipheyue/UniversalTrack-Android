@@ -5,7 +5,6 @@ import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 
 
-
 /**
  * Created by heyue on 2017/12/25.
  */
@@ -15,9 +14,11 @@ class MyApplication : Application() {
         super.onCreate()
         INSTANCE = this
         Logger.addLogAdapter(AndroidLogAdapter())
+        LocalManager.initTrace(this)
+
     }
 
     companion object {
-         lateinit var INSTANCE: MyApplication
+        lateinit var INSTANCE: MyApplication
     }
 }

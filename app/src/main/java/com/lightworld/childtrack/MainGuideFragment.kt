@@ -22,5 +22,13 @@ class MainGuideFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        LocalManager.startTraceService()
+//        LocalManager.dealWithData(activity as Context)
+        LocalManager.dealRealLoc()
+    }
+
+    override fun onDestroy() {
+        LocalManager.startTraceService()
+        super.onDestroy()
     }
 }// Required empty public constructor
