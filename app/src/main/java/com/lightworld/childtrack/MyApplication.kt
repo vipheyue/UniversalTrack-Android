@@ -1,6 +1,7 @@
 package com.lightworld.childtrack
 
 import android.app.Application
+import com.baidu.mapapi.SDKInitializer
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 
@@ -15,6 +16,8 @@ class MyApplication : Application() {
         INSTANCE = this
         Logger.addLogAdapter(AndroidLogAdapter())
         LocalManager.initTrace(this)
+        SDKInitializer.initialize(this)
+
 
     }
 

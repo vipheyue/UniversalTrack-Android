@@ -1,11 +1,14 @@
 package com.lightworld.childtrack
 
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.fragment_main_guide.*
+import org.jetbrains.anko.startActivity
 
 
 /**
@@ -22,13 +25,16 @@ class MainGuideFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        rtv_my_track.setOnClickListener { activity!!.startActivity<MyTrackActivity>() }
+        LocalManager.tipOpenLocal(activity as Context)
         LocalManager.startTraceService()
-//        LocalManager.dealWithData(activity as Context)
-        LocalManager.dealRealLoc()
+        LocalManager.startGather()
+        //TODO 目前假设没有任何其他 情况发生 需要单独处理
+//        LocalManager.dealRealLoc()
     }
 
     override fun onDestroy() {
-        LocalManager.startTraceService()
+//        LocalManager.stopRealLoc()
         super.onDestroy()
     }
 }// Required empty public constructor

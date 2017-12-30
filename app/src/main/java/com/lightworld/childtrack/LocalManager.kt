@@ -1,8 +1,11 @@
 package com.lightworld.childtrack
 
 import android.content.Context
+import android.content.Intent
+import android.location.LocationManager
 import android.os.Handler
 import android.os.Message
+import android.provider.Settings
 import android.widget.Toast
 import com.baidu.trace.LBSTraceClient
 import com.baidu.trace.Trace
@@ -11,17 +14,18 @@ import com.baidu.trace.api.entity.OnEntityListener
 import com.baidu.trace.api.track.LatestPointRequest
 import com.baidu.trace.api.track.LatestPointResponse
 import com.baidu.trace.api.track.OnTrackListener
-import com.baidu.trace.model.OnTraceListener
-import com.baidu.trace.model.ProcessOption
-import com.baidu.trace.model.PushMessage
-import com.baidu.trace.model.TraceLocation
-import com.orhanobut.logger.Logger
+import com.baidu.trace.model.*
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.noButton
+import org.jetbrains.anko.toast
+import org.jetbrains.anko.yesButton
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+
 
 /**
  * Created by heyue on 2017/12/28.
@@ -30,6 +34,25 @@ import java.util.concurrent.atomic.AtomicInteger
 object LocalManager {
     private lateinit var mTrace: Trace
     private lateinit var mTraceClient: LBSTraceClient
+    private lateinit var mDispose: Disposable
+    private lateinit var gatherDispose: Disposable
+
+    fun tipOpenLocal(mContext: Context) {
+        val locManager = mContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            // 未打开位置开关，可能导致定位失败或定位不准，提示用户或做相应处理
+            mContext.alert("即将进入设置页面", "请打开GPS定位,以便更好的使用本软件") {
+                yesButton {
+                    // 转到手机设置界面，用户设置GPS
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    mContext.startActivity(intent)
+                    noButton {
+                        mContext.toast("未开启定位,会影响使用哦!")
+                    }
+                }
+            }.show()
+        }
+    }
 
     fun initTrace(mContext: Context) {
         // 1.初始化轨迹服务
@@ -54,49 +77,47 @@ object LocalManager {
     fun startGather() {
         Handler().postDelayed(Runnable {
             mTraceClient.startGather(mTraceListener)
-        }, 2000)
+        }, 4000)
     }
 
     //停止采集
     fun stopGather() {
         mTraceClient.stopGather(mTraceListener)
+        gatherDispose?.dispose()
     }
 
 
     fun dealGatherData(mContext: Context) {
         //4.处理采集数据 异步 查询历史轨迹 功能需要单独提出来
-        Handler().postDelayed(Runnable {
-            mContext.doAsync {
-                val request = LatestPointRequest(AtomicInteger().incrementAndGet(), serviceId, entityName)
-                val processOption = ProcessOption()
-                processOption.isNeedDenoise = true
-                processOption.radiusThreshold = 100
-                request.processOption = processOption
-                mTraceClient.queryLatestPoint(request, trackListener)
-            }
-        }, 3000)
+
+        gatherDispose = Observable.interval(0, 5, TimeUnit.SECONDS)//每秒发射一个数字出来
+                .delay(3, TimeUnit.SECONDS)
+                .subscribeOn(Schedulers.io())
+                .map {
+                    val request = LatestPointRequest(AtomicInteger().incrementAndGet(), serviceId, entityName)
+                    val processOption = ProcessOption()
+                    processOption.isNeedDenoise = true
+                    processOption.radiusThreshold = 100
+                    request.processOption = processOption
+                    mTraceClient.queryLatestPoint(request, trackListener)
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { }
     }
 
     fun dealRealLoc() {
-
-        val observable = Observable.interval(0, 10, TimeUnit.SECONDS)//每秒发射一个数字出来
+        mDispose = Observable.interval(0, 10, TimeUnit.SECONDS)//每秒发射一个数字出来
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    Logger.d(it.toString())
-
+                    //实时定位任务
+                    val locRequest = LocRequest(serviceId)
+                    mTraceClient.queryRealTimeLoc(locRequest, entityListener)
                 }
-
-//        realTimeHandler.post(realTimeLocRunnable)
-        /*   Handler().postDelayed(Runnable {
-            //            mContext.doAsync {
-            val locRequest = LocRequest(serviceId)
-            mTraceClient.queryRealTimeLoc(locRequest, entityListener)
-//            }
-        }, 4000)*/
     }
 
     fun stopRealLoc() {
+        mDispose?.dispose()
         mTraceClient.stopRealTimeLoc()
     }
 
@@ -130,8 +151,22 @@ object LocalManager {
      * 轨迹监听器(用于接收纠偏后实时位置回调)
      */
     object trackListener : OnTrackListener() {
-        override fun onLatestPointCallback(p0: LatestPointResponse?) {
-            super.onLatestPointCallback(p0)
+        override fun onLatestPointCallback(response: LatestPointResponse?) {
+            if (StatusCodes.SUCCESS != response?.getStatus()) {
+                return
+            }
+
+            val point = response.getLatestPoint()
+            if (null == point || CommonUtil.isZeroPoint(point.location.getLatitude(), point.location .getLongitude())) {
+                return
+            }
+
+            val currentLatLng = MapUtil.convertTrace2Map(point.location) ?: return
+//            CurrentLocation.locTime = point.locTime
+//            CurrentLocation.latitude = currentLatLng.latitude
+//            CurrentLocation.longitude = currentLatLng.longitude
+//            CurrentLocation.longitude = currentLatLng.longitude
+                MapUtil.getInstance().updateStatus(currentLatLng, true)
         }
     }
 
@@ -147,20 +182,5 @@ object LocalManager {
         }
     }
 
-    /**
-     * 实时定位任务
-     *
-     * @author baidu
-     */
-    object realTimeLocRunnable : Runnable {
-
-        private val interval = 10
-
-        override fun run() {
-            val locRequest = LocRequest(serviceId)
-            mTraceClient.queryRealTimeLoc(locRequest, entityListener)
-            realTimeHandler.postDelayed(this, (interval * 1000).toLong())
-        }
-    }
 }
 

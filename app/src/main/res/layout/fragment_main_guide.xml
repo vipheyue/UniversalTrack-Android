@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.flyco.roundview.RoundTextView
-            android:id="@+id/rtv_1"
+            android:id="@+id/rtv_my_track"
             style="@style/MainGuideText"
             android:layout_margin="20dp"
             android:layout_weight="1"
@@ -26,10 +26,10 @@
             android:gravity="center"
             android:singleLine="true"
 
-            android:text="追踪他人位置" />
+            android:text="我的轨迹" />
 
         <com.flyco.roundview.RoundTextView
-            android:id="@+id/rtv_2"
+            android:id="@+id/rtv_share_track"
             style="@style/MainGuideText"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
@@ -37,17 +37,18 @@
             android:ellipsize="end"
             android:gravity="center"
             android:singleLine="true"
-            android:text="追踪他人" />
-
+            android:text="让人追踪" />
 
         <com.flyco.roundview.RoundTextView
-            android:id="@+id/rtv_3"
+            android:id="@+id/rtv_track_other"
             style="@style/MainGuideText"
             android:layout_margin="20dp"
-            android:layout_weight="2"
+            android:layout_weight="3"
             android:ellipsize="end"
             android:gravity="center"
             android:singleLine="true"
-            android:text="分享定位" />
+            android:text="追踪他人" />
+
+
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
