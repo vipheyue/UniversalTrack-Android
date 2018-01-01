@@ -1,1 +1,1 @@
-include ':app', ':baidutrace_v3_0_7_lib'
+include ':app', ':baidutrace_v3_0_7_lib', ':qrcodelib'

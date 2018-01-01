@@ -18,7 +18,6 @@ class MyApplication : Application() {
         LocalManager.initTrace(this)
         SDKInitializer.initialize(this)
 
-
     }
 
     companion object {

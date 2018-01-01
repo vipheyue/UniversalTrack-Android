@@ -26,6 +26,8 @@ class MainGuideFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         rtv_my_track.setOnClickListener { activity!!.startActivity<MyTrackActivity>() }
+        rtv_share_track.setOnClickListener { activity!!.startActivity<TrackMeActivity>() }
+        rtv_track_other.setOnClickListener { activity!!.startActivity<TrackOtherActivity>() }
         LocalManager.tipOpenLocal(activity as Context)
         LocalManager.startTraceService()
         LocalManager.startGather()
