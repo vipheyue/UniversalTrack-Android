@@ -11,7 +11,7 @@ import com.baidu.trace.api.track.*
 import com.baidu.trace.model.ProcessOption
 import com.baidu.trace.model.SortType
 import com.baidu.trace.model.StatusCodes
-import kotlinx.android.synthetic.main.fragment_my_track.*
+import kotlinx.android.synthetic.main.fragment_map_track.*
 import org.jetbrains.anko.toast
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * A placeholder fragment containing a simple view.
  */
-class MyTrackFragment : Fragment() {
+class TrackMapFragment : Fragment() {
     lateinit var mapUtil: MapUtil
 
     /**
@@ -60,7 +60,7 @@ class MyTrackFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        return inflater.inflate(R.layout.fragment_my_track, container, false)
+        return inflater.inflate(R.layout.fragment_map_track, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -120,7 +120,7 @@ class MyTrackFragment : Fragment() {
     private fun queryHistoryTrack() {
         historyTrackRequest.setTag(mSequenceGenerator.incrementAndGet())
         historyTrackRequest.setServiceId(serviceId)
-        historyTrackRequest.entityName = entityName
+        historyTrackRequest.entityName = lastQueryEntityName
         historyTrackRequest.pageIndex = pageIndex
         historyTrackRequest.pageSize = PAGE_SIZE
 

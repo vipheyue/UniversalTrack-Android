@@ -56,7 +56,7 @@ object LocalManager {
 
     fun initTrace(mContext: Context) {
         // 1.初始化轨迹服务
-        mTrace = Trace(serviceId, entityName, isNeedObjectStorage)
+        mTrace = Trace(serviceId, myTrackEntityName, isNeedObjectStorage)
         // 初始化轨迹服务客户端
         mTraceClient = LBSTraceClient(mContext)
         // 2.设置定位和打包周期
@@ -94,7 +94,7 @@ object LocalManager {
                 .delay(3, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .map {
-                    val request = LatestPointRequest(AtomicInteger().incrementAndGet(), serviceId, entityName)
+                    val request = LatestPointRequest(AtomicInteger().incrementAndGet(), serviceId, myTrackEntityName)
                     val processOption = ProcessOption()
                     processOption.isNeedDenoise = true
                     processOption.radiusThreshold = 100

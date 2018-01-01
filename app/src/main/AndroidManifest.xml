@@ -27,7 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MyTrackActivity" />
+        <activity android:name=".TrackMapActivity" />
         <activity android:name=".TrackOtherActivity" />
         <activity android:name=".TrackMeActivity"></activity>
     </application>

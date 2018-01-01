@@ -7,8 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import io.github.xudaojie.qrcodelib.CaptureActivity
 import kotlinx.android.synthetic.main.activity_track_other.*
-
-
+import org.jetbrains.anko.startActivity
 
 
 class TrackOtherActivity : AppCompatActivity() {
@@ -20,13 +19,20 @@ class TrackOtherActivity : AppCompatActivity() {
     }
 
 
-    private val REQUEST_QR_CODE: Int=111
+    private val REQUEST_QR_CODE: Int = 111
 
     private fun initView() {
         rtv_scan.setOnClickListener {
             val i = Intent(this, CaptureActivity::class.java)
             startActivityForResult(i, REQUEST_QR_CODE)
         }
+        rtv_startTrack.setOnClickListener {
+            val entityName = autoCompleteTextView.text.toString().trim()
+            if (entityName.isNotEmpty()) {
+                startActivity<TrackMapActivity>(TRACK_ENTITY_NAME to entityName)
+            }
+        }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -36,6 +42,7 @@ class TrackOtherActivity : AppCompatActivity() {
                 && data != null) {
             val result = data.getStringExtra("result")
             Toast.makeText(this@TrackOtherActivity, result, Toast.LENGTH_SHORT).show()
+            startActivity<TrackMapActivity>(TRACK_ENTITY_NAME to result)
         }
     }
 
