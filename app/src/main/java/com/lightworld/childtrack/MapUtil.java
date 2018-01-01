@@ -131,16 +131,6 @@ public class MapUtil {
         return currentLatLng;
     }
 
-    /**
-     * 将地图坐标转换轨迹坐标
-     *
-     * @param latLng
-     *
-     * @return
-     */
-    public static com.baidu.trace.model.LatLng convertMap2Trace(LatLng latLng) {
-        return new com.baidu.trace.model.LatLng(latLng.latitude, latLng.longitude);
-    }
 
     /**
      * 将轨迹坐标对象转换为地图坐标对象

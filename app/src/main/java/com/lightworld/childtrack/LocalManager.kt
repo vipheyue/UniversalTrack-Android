@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 object LocalManager {
     private lateinit var mTrace: Trace
-    private lateinit var mTraceClient: LBSTraceClient
+    lateinit var mTraceClient: LBSTraceClient
     private lateinit var mDispose: Disposable
     private lateinit var gatherDispose: Disposable
 
@@ -87,7 +87,7 @@ object LocalManager {
     }
 
 
-    fun dealGatherData(mContext: Context) {
+    fun queryLastPoint(mContext: Context) {
         //4.处理采集数据 异步 查询历史轨迹 功能需要单独提出来
 
         gatherDispose = Observable.interval(0, 5, TimeUnit.SECONDS)//每秒发射一个数字出来
@@ -157,16 +157,12 @@ object LocalManager {
             }
 
             val point = response.getLatestPoint()
-            if (null == point || CommonUtil.isZeroPoint(point.location.getLatitude(), point.location .getLongitude())) {
+            if (null == point || CommonUtil.isZeroPoint(point.location.getLatitude(), point.location.getLongitude())) {
                 return
             }
 
             val currentLatLng = MapUtil.convertTrace2Map(point.location) ?: return
-//            CurrentLocation.locTime = point.locTime
-//            CurrentLocation.latitude = currentLatLng.latitude
-//            CurrentLocation.longitude = currentLatLng.longitude
-//            CurrentLocation.longitude = currentLatLng.longitude
-                MapUtil.getInstance().updateStatus(currentLatLng, true)
+            MapUtil.getInstance().updateStatus(currentLatLng, true)
         }
     }
 
