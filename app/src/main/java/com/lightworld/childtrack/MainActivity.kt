@@ -2,8 +2,7 @@ package com.lightworld.childtrack
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
+import android.view.KeyEvent
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,25 +14,11 @@ class MainActivity : AppCompatActivity() {
                     .setAction("Action", null).show()
         }*/
     }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            moveTaskToBack(false)
+            return true
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
+        return super.onKeyDown(keyCode, event)
     }
 }

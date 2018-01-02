@@ -1,10 +1,16 @@
 package com.lightworld.childtrack
 
 
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +24,7 @@ import org.jetbrains.anko.startActivity
  */
 class MainGuideFragment : Fragment() {
 
+    private var powerManager: PowerManager? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -28,6 +35,7 @@ class MainGuideFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         myTrackEntityName = RxDeviceTool.getDeviceIdIMEI(activity).toString()
+        powerManager = activity!!.getSystemService(Context.POWER_SERVICE) as PowerManager
 
         rtv_my_track.setOnClickListener { activity!!.startActivity<TrackMapActivity>(TRACK_ENTITY_NAME to myTrackEntityName) }
         rtv_share_track.setOnClickListener { activity!!.startActivity<TrackMeActivity>() }
@@ -52,7 +60,30 @@ class MainGuideFragment : Fragment() {
     }
 
     override fun onDestroy() {
-//        LocalManager.stopRealLoc()
+        LocalManager.stopTraceService()
         super.onDestroy()
     }
+
+
+
+    @SuppressLint("NewApi")
+    override fun onResume() {
+        super.onResume()
+        // 在Android 6.0及以上系统，若定制手机使用到doze模式，请求将应用添加到白名单。
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val packageName = activity!!.packageName
+            val isIgnoring = powerManager?.isIgnoringBatteryOptimizations(packageName)
+            if (!isIgnoring!!) {
+                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                intent.data = Uri.parse("package:" + packageName)
+                try {
+                    startActivity(intent)
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
+
+            }
+        }
+    }
+
 }// Required empty public constructor

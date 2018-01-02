@@ -2,11 +2,12 @@ package com.lightworld.childtrack
 
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.location.LocationManager
 import android.os.Handler
 import android.os.Message
+import android.os.PowerManager
 import android.provider.Settings
-import android.widget.Toast
 import com.baidu.trace.LBSTraceClient
 import com.baidu.trace.Trace
 import com.baidu.trace.api.entity.LocRequest
@@ -15,6 +16,7 @@ import com.baidu.trace.api.track.LatestPointRequest
 import com.baidu.trace.api.track.LatestPointResponse
 import com.baidu.trace.api.track.OnTrackListener
 import com.baidu.trace.model.*
+import com.lightworld.childtrack.receiver.TrackReceiver
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -34,9 +36,12 @@ import java.util.concurrent.atomic.AtomicInteger
 object LocalManager {
     private lateinit var mTrace: Trace
     lateinit var mTraceClient: LBSTraceClient
-    private lateinit var mDispose: Disposable
+    private lateinit var realLocDispose: Disposable
     private lateinit var gatherDispose: Disposable
+    private var powerManager: PowerManager? = null
 
+    private var trackReceiver: TrackReceiver? = null
+    private var wakeLock: PowerManager.WakeLock? = null
     fun tipOpenLocal(mContext: Context) {
         val locManager = mContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if (!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -61,6 +66,8 @@ object LocalManager {
         mTraceClient = LBSTraceClient(mContext)
         // 2.设置定位和打包周期
         mTraceClient.setInterval(gatherInterval, packInterval);
+        powerManager= MyApplication.INSTANCE.getSystemService(Context.POWER_SERVICE) as PowerManager
+
     }
 
     // 3.开启服务
@@ -106,7 +113,7 @@ object LocalManager {
     }
 
     fun dealRealLoc() {
-        mDispose = Observable.interval(0, 10, TimeUnit.SECONDS)//每秒发射一个数字出来
+        realLocDispose = Observable.interval(0, 10, TimeUnit.SECONDS)//每秒发射一个数字出来
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
@@ -117,7 +124,7 @@ object LocalManager {
     }
 
     fun stopRealLoc() {
-        mDispose?.dispose()
+        realLocDispose?.dispose()
         mTraceClient.stopRealTimeLoc()
     }
 
@@ -129,18 +136,26 @@ object LocalManager {
         }
 
         // 开启服务回调
-        override fun onStartTraceCallback(status: Int, message: String) {
-            Toast.makeText(MyApplication.INSTANCE, "开启服务回调", Toast.LENGTH_SHORT).show()
+        override fun onStartTraceCallback(errorNo: Int, message: String) {
+            if (StatusCodes.SUCCESS == errorNo || StatusCodes.START_TRACE_NETWORK_CONNECT_FAILED <= errorNo) {
+                registerReceiver()
+            }
         }
 
         // 停止服务回调
-        override fun onStopTraceCallback(status: Int, message: String) {}
+        override fun onStopTraceCallback(errorNo: Int, message: String) {
+            if (StatusCodes.SUCCESS == errorNo || StatusCodes.CACHE_TRACK_NOT_UPLOAD == errorNo) {
+                unregisterPowerReceiver()
+            }
+        }
 
         // 开启采集回调
         override fun onStartGatherCallback(status: Int, message: String) {}
 
         // 停止采集回调
-        override fun onStopGatherCallback(status: Int, message: String) {}
+        override fun onStopGatherCallback(status: Int, message: String) {
+
+        }
 
         // 推送回调
         override fun onPushCallback(messageNo: Byte, message: PushMessage) {}
@@ -177,6 +192,39 @@ object LocalManager {
             super.handleMessage(msg)
         }
     }
+    /**
+     * 注册广播（电源锁、GPS状态）
+     */
+    private fun registerReceiver() {
+        if (isRegisterReceiver) {
+            return
+        }
 
+        if (null == wakeLock) {
+            wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "track upload")
+        }
+        if (null == trackReceiver) {
+            trackReceiver = TrackReceiver(wakeLock)
+        }
+
+        val filter = IntentFilter()
+        filter.addAction(Intent.ACTION_SCREEN_OFF)
+        filter.addAction(Intent.ACTION_SCREEN_ON)
+        filter.addAction(Intent.ACTION_USER_PRESENT)
+        filter.addAction(StatusCodes.GPS_STATUS_ACTION)
+        MyApplication.INSTANCE?.registerReceiver(trackReceiver, filter)
+        isRegisterReceiver = true
+
+    }
+
+    private fun unregisterPowerReceiver() {
+        if (!isRegisterReceiver) {
+            return
+        }
+        if (null != trackReceiver) {
+            MyApplication.INSTANCE?.unregisterReceiver(trackReceiver)
+        }
+        isRegisterReceiver = false
+    }
 }
 

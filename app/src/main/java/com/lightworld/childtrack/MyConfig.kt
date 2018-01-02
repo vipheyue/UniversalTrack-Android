@@ -18,3 +18,4 @@ var packInterval = 10
 var configAgreeLicense by Preference(MyApplication.INSTANCE, "configAgreeLicense", false)
 
 var TRACK_ENTITY_NAME ="TRACK_ENTITY_NAME"
+var isRegisterReceiver = false
