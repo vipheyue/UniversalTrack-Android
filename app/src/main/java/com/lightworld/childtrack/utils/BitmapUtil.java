@@ -1,10 +1,11 @@
-package com.lightworld.childtrack;
+package com.lightworld.childtrack.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
 
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.lightworld.childtrack.R;
 
 /**
  * Created by baidu on 17/3/8.

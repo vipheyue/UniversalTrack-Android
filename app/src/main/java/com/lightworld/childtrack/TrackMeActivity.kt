@@ -34,7 +34,7 @@ class TrackMeActivity : AppCompatActivity() {
             val mClipData = ClipData.newPlainText("身份ID", tempString)
             cm.primaryClip = mClipData
 
-            toast("复制成功---> " + myTrackEntityName)
+            toast("已复制剪切板---> " + myTrackEntityName)
             var textIntent = Intent(Intent.ACTION_SEND);
             textIntent.setType("text/plain");
             textIntent.putExtra(Intent.EXTRA_TEXT, tempString)

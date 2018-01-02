@@ -1,4 +1,4 @@
-package com.lightworld.childtrack;
+package com.lightworld.childtrack.utils;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -26,9 +26,9 @@ import com.baidu.trace.model.TraceLocation;
 
 import java.util.List;
 
-import static com.lightworld.childtrack.BitmapUtil.bmArrowPoint;
-import static com.lightworld.childtrack.BitmapUtil.bmEnd;
-import static com.lightworld.childtrack.BitmapUtil.bmStart;
+import static com.lightworld.childtrack.utils.BitmapUtil.bmArrowPoint;
+import static com.lightworld.childtrack.utils.BitmapUtil.bmEnd;
+import static com.lightworld.childtrack.utils.BitmapUtil.bmStart;
 
 /**
  * Created by baidu on 17/2/9.

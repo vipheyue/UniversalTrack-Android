@@ -7,10 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.baidu.mapapi.model.LatLng
-import com.baidu.trace.api.track.*
+import com.baidu.trace.api.track.HistoryTrackRequest
+import com.baidu.trace.api.track.HistoryTrackResponse
+import com.baidu.trace.api.track.OnTrackListener
+import com.baidu.trace.api.track.SupplementMode
 import com.baidu.trace.model.ProcessOption
 import com.baidu.trace.model.SortType
 import com.baidu.trace.model.StatusCodes
+import com.lightworld.childtrack.utils.BitmapUtil
+import com.lightworld.childtrack.utils.CommonUtil
+import com.lightworld.childtrack.utils.MapUtil
 import kotlinx.android.synthetic.main.fragment_map_track.*
 import org.jetbrains.anko.toast
 import java.util.*
@@ -26,7 +32,7 @@ class TrackMapFragment : Fragment() {
     /**
      * 查询轨迹的开始时间
      */
-    private var startTime = CommonUtil.getCurrentTime() - 1000
+    private var startTime = CommonUtil.getCurrentTime() - 23 * 60 * 60
 
     /**
      * 查询轨迹的结束时间
@@ -80,10 +86,8 @@ class TrackMapFragment : Fragment() {
                 val total = response!!.total
                 if (StatusCodes.SUCCESS != response.getStatus()) {
                     activity?.toast(response.getMessage())
-
                 } else if (0 == total) {
-                    activity?.toast("no_track_data")
-
+                    activity?.toast("未留下任何轨迹信息")
                 } else {
                     val points = response.getTrackPoints()
                     if (null != points) {
@@ -104,13 +108,6 @@ class TrackMapFragment : Fragment() {
                 }
             }
 
-            override fun onDistanceCallback(response: DistanceResponse?) {
-                super.onDistanceCallback(response)
-            }
-
-            override fun onLatestPointCallback(response: LatestPointResponse?) {
-                super.onLatestPointCallback(response)
-            }
         }
     }
 
@@ -128,8 +125,11 @@ class TrackMapFragment : Fragment() {
         historyTrackRequest.endTime = endTime
 
         val processOption = ProcessOption()
-        historyTrackRequest.setProcessed(true)//纠偏
+
+        historyTrackRequest.isProcessed = true//纠偏
+        processOption.isNeedDenoise = true//去噪
         processOption.isNeedMapMatch = true//绑路
+        processOption.radiusThreshold = 10//精度过滤
         historyTrackRequest.supplementMode = SupplementMode.walking//步行
 
         historyTrackRequest.processOption = processOption

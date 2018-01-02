@@ -2,19 +2,26 @@ package com.lightworld.childtrack
 
 
 import android.annotation.SuppressLint
-import android.content.ClipData
-import android.content.ClipboardManager
+import android.annotation.TargetApi
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.support.v4.app.Fragment
+import android.support.v4.app.NotificationCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.lightworld.childtrack.helper.ClipboardManagerHelper
+import com.lightworld.childtrack.utils.RxDeviceTool
 import kotlinx.android.synthetic.main.fragment_main_guide.*
 import org.jetbrains.anko.startActivity
 
@@ -40,30 +47,22 @@ class MainGuideFragment : Fragment() {
         rtv_my_track.setOnClickListener { activity!!.startActivity<TrackMapActivity>(TRACK_ENTITY_NAME to myTrackEntityName) }
         rtv_share_track.setOnClickListener { activity!!.startActivity<TrackMeActivity>() }
         rtv_track_other.setOnClickListener { activity!!.startActivity<TrackOtherActivity>() }
+
+        LocalManager.mTrace.notification = sendNotify()
         LocalManager.tipOpenLocal(activity as Context)
         LocalManager.startTraceService()
         LocalManager.startGather()
         //TODO 目前假设没有任何其他 情况发生 需要单独处理
 //        LocalManager.dealRealLoc()
+        ClipboardManagerHelper.discernSymbol(activity!!)
 
-        //获取 剪切板
-        val cm = activity!!.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val copyText = cm.primaryClip.getItemAt(0).text
-        if (copyText.contains('¥') && copyText.endsWith('¥')) {
-            var split: List<String> = copyText.split('¥')
-            var id = split.get(1)
-            activity!!.startActivity<TrackMapActivity>(TRACK_ENTITY_NAME to id)
-            //重置剪切板
-            val mClipData = ClipData.newPlainText("", "")
-            cm.primaryClip = mClipData
-        }
+
     }
 
     override fun onDestroy() {
         LocalManager.stopTraceService()
         super.onDestroy()
     }
-
 
 
     @SuppressLint("NewApi")
@@ -86,4 +85,42 @@ class MainGuideFragment : Fragment() {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
+    fun sendNotify(): Notification? {
+        var notificationManager = activity?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+
+        val NOTIFICATION_ID = 1
+        val NOTIFICATION_CHANNEL_ID = "NOTIFICATION_CHANNEL_ID"
+        val pattern = longArrayOf(0, 100, 1000, 300, 200, 100, 500, 200, 100)
+        val appName = resources.getString(R.string.app_name)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, appName, NotificationManager.IMPORTANCE_DEFAULT)
+            // Configure the notification channel.
+            notificationChannel.description = appName + " APP 的描述"
+            notificationChannel.enableLights(true)
+            notificationChannel.lightColor = Color.RED
+//            notificationChannel.vibrationPattern = pattern
+            notificationChannel.enableVibration(true)
+            notificationManager.createNotificationChannel(notificationChannel)
+
+        }
+
+
+        val mBuilder = NotificationCompat.Builder(activity as Context, NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(appName)
+                .setContentText("正在为您服务")
+                .setAutoCancel(true)
+                .setDefaults(Notification.DEFAULT_ALL) // requires VIBRATE permission
+
+        val resultIntent = Intent(activity as Context, MainActivity::class.java)
+        val resultPendingIntent =
+                PendingIntent.getActivity(activity as Context, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        mBuilder.setContentIntent(resultPendingIntent)
+
+//        notificationManager.notify(NOTIFICATION_ID, mBuilder.build())
+        return mBuilder.build()
+    }
 }// Required empty public constructor

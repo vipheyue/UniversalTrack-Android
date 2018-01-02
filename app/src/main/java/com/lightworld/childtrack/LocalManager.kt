@@ -17,6 +17,8 @@ import com.baidu.trace.api.track.LatestPointResponse
 import com.baidu.trace.api.track.OnTrackListener
 import com.baidu.trace.model.*
 import com.lightworld.childtrack.receiver.TrackReceiver
+import com.lightworld.childtrack.utils.CommonUtil
+import com.lightworld.childtrack.utils.MapUtil
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -34,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 
 object LocalManager {
-    private lateinit var mTrace: Trace
+    lateinit var mTrace: Trace
     lateinit var mTraceClient: LBSTraceClient
     private lateinit var realLocDispose: Disposable
     private lateinit var gatherDispose: Disposable
@@ -66,8 +68,7 @@ object LocalManager {
         mTraceClient = LBSTraceClient(mContext)
         // 2.设置定位和打包周期
         mTraceClient.setInterval(gatherInterval, packInterval);
-        powerManager= MyApplication.INSTANCE.getSystemService(Context.POWER_SERVICE) as PowerManager
-
+        powerManager = MyApplication.INSTANCE.getSystemService(Context.POWER_SERVICE) as PowerManager
     }
 
     // 3.开启服务
@@ -192,6 +193,7 @@ object LocalManager {
             super.handleMessage(msg)
         }
     }
+
     /**
      * 注册广播（电源锁、GPS状态）
      */
@@ -226,5 +228,8 @@ object LocalManager {
         }
         isRegisterReceiver = false
     }
+
+
+
 }
 

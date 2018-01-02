@@ -1,4 +1,4 @@
-package com.lightworld.childtrack;
+package com.lightworld.childtrack.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
