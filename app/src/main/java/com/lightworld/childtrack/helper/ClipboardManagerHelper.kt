@@ -4,8 +4,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import com.lightworld.childtrack.RemarkUserBean
-import com.lightworld.childtrack.TRACK_ENTITY_NAME
 import com.lightworld.childtrack.TrackMapActivity
+import com.lightworld.childtrack.lastQueryEntityName
 import org.jetbrains.anko.startActivity
 
 /**
@@ -25,12 +25,12 @@ object ClipboardManagerHelper {
                 var id = split[1]
                 //存入数据库
                 HistoryQueryTable.saveData(RemarkUserBean(id))
+                lastQueryEntityName = id
 
                 //重置剪切板
                 val mClipData = ClipData.newPlainText("", "")
                 cm.primaryClip = mClipData
-
-                mContext.startActivity<TrackMapActivity>(TRACK_ENTITY_NAME to id)
+                mContext.startActivity<TrackMapActivity>()
             }
         }
     }

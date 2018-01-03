@@ -4,6 +4,7 @@ import android.app.Application
 import com.baidu.mapapi.SDKInitializer
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
+import com.tencent.bugly.crashreport.CrashReport
 
 
 /**
@@ -17,7 +18,7 @@ class MyApplication : Application() {
         Logger.addLogAdapter(AndroidLogAdapter())
         LocalManager.initTrace(this)
         SDKInitializer.initialize(this)
-
+        CrashReport.initCrashReport(getApplicationContext(), "1641f60016", false);
     }
 
     companion object {

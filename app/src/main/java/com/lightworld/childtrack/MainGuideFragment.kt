@@ -1,7 +1,6 @@
 package com.lightworld.childtrack
 
 
-import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Notification
 import android.app.NotificationChannel
@@ -10,11 +9,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.provider.Settings
 import android.support.v4.app.Fragment
 import android.support.v4.app.NotificationCompat
 import android.view.LayoutInflater
@@ -44,7 +41,10 @@ class MainGuideFragment : Fragment() {
         myTrackEntityName = RxDeviceTool.getDeviceIdIMEI(activity).toString()
         powerManager = activity!!.getSystemService(Context.POWER_SERVICE) as PowerManager
 
-        rtv_my_track.setOnClickListener { activity!!.startActivity<TrackMapActivity>(TRACK_ENTITY_NAME to myTrackEntityName) }
+        rtv_my_track.setOnClickListener {
+            lastQueryEntityName = myTrackEntityName
+            activity!!.startActivity<TrackMapActivity>()
+        }
         rtv_share_track.setOnClickListener { activity!!.startActivity<TrackMeActivity>() }
         rtv_track_other.setOnClickListener { activity!!.startActivity<TrackOtherActivity>() }
 
@@ -56,7 +56,6 @@ class MainGuideFragment : Fragment() {
 //        LocalManager.dealRealLoc()
         ClipboardManagerHelper.discernSymbol(activity!!)
 
-
     }
 
     override fun onDestroy() {
@@ -65,25 +64,7 @@ class MainGuideFragment : Fragment() {
     }
 
 
-    @SuppressLint("NewApi")
-    override fun onResume() {
-        super.onResume()
-        // 在Android 6.0及以上系统，若定制手机使用到doze模式，请求将应用添加到白名单。
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val packageName = activity!!.packageName
-            val isIgnoring = powerManager?.isIgnoringBatteryOptimizations(packageName)
-            if (!isIgnoring!!) {
-                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-                intent.data = Uri.parse("package:" + packageName)
-                try {
-                    startActivity(intent)
-                } catch (ex: Exception) {
-                    ex.printStackTrace()
-                }
 
-            }
-        }
-    }
 
     @TargetApi(Build.VERSION_CODES.O)
     fun sendNotify(): Notification? {

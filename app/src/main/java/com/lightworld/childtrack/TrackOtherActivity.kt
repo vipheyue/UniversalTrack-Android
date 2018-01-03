@@ -30,6 +30,11 @@ class TrackOtherActivity : AppCompatActivity() {
     private val REQUEST_QR_CODE: Int = 111
 
     private fun initView() {
+        val mActionBar = supportActionBar
+        mActionBar!!.setHomeButtonEnabled(true)
+        mActionBar.setDisplayHomeAsUpEnabled(true)
+        mActionBar.title = "追踪他人"
+
         rtv_scan.setOnClickListener {
             //启动扫码页面
             val i = Intent(this, CaptureActivity::class.java)
@@ -41,7 +46,8 @@ class TrackOtherActivity : AppCompatActivity() {
             val remarkUserBean = RemarkUserBean(splitSymbol)
 //            historyAdapter!!.addData(0, remarkUserBean)
             HistoryQueryTable.saveData(remarkUserBean)//存入数据库
-            startActivity<TrackMapActivity>(TRACK_ENTITY_NAME to splitSymbol)
+            lastQueryEntityName = splitSymbol
+            startActivity<TrackMapActivity>()
             finish()
         }
         //读取数据中心
@@ -55,7 +61,8 @@ class TrackOtherActivity : AppCompatActivity() {
 //            historyAdapter!!.remove(position)
 //            historyAdapter!!.addData(0, remarkUserBean)
             HistoryQueryTable.saveData(remarkUserBean)
-            startActivity<TrackMapActivity>(TRACK_ENTITY_NAME to remarkUserBean.entityName)
+            lastQueryEntityName = remarkUserBean.entityName
+            startActivity<TrackMapActivity>()
             finish()
 
         }
@@ -82,6 +89,7 @@ class TrackOtherActivity : AppCompatActivity() {
         }
         recyclerView_history.setLayoutManager(LinearLayoutManager(this))
         recyclerView_history.setAdapter(historyAdapter)
+        ClipboardManagerHelper.discernSymbol(this)
 
     }
 
@@ -96,11 +104,15 @@ class TrackOtherActivity : AppCompatActivity() {
             val remarkUserBean = RemarkUserBean(entrity)
             HistoryQueryTable.saveData(remarkUserBean)
 //            historyAdapter!!.addData(0, remarkUserBean)
-            startActivity<TrackMapActivity>(TRACK_ENTITY_NAME to entrity)
+            lastQueryEntityName =entrity
+            startActivity<TrackMapActivity>()
             finish()
 
         }
     }
-
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return super.onSupportNavigateUp()
+    }
 
 }

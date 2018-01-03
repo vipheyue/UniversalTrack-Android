@@ -19,6 +19,10 @@ class TrackMeActivity : AppCompatActivity() {
     }
 
     private fun initView() {
+        val mActionBar = supportActionBar
+        mActionBar!!.setHomeButtonEnabled(true)
+        mActionBar.setDisplayHomeAsUpEnabled(true)
+        mActionBar.title = "追踪我"
 
         tv_id.setText("我的身份ID:" + myTrackEntityName)
         //二维码生成方式一  推荐此方法
@@ -39,8 +43,10 @@ class TrackMeActivity : AppCompatActivity() {
             textIntent.setType("text/plain");
             textIntent.putExtra(Intent.EXTRA_TEXT, tempString)
             startActivity(Intent.createChooser(textIntent, "邀请查看我的轨迹"))
-
-
         }
+    }
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return super.onSupportNavigateUp()
     }
 }
