@@ -43,4 +43,6 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.1.7'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation project(':qrcodelib')
+    compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
+    compile 'com.google.code.gson:gson:2.8.2'
 }

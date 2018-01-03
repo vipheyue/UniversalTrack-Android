@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ChildTrack.iml" filepath="$PROJECT_DIR$/ChildTrack.iml" />
+      <module fileurl="file://$PROJECT_DIR$/UniversalTrack-Android.iml" filepath="$PROJECT_DIR$/UniversalTrack-Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/baidutrace_v3_0_7_lib/baidutrace_v3_0_7_lib.iml" filepath="$PROJECT_DIR$/baidutrace_v3_0_7_lib/baidutrace_v3_0_7_lib.iml" />
       <module fileurl="file://$PROJECT_DIR$/qrcodelib/qrcodelib.iml" filepath="$PROJECT_DIR$/qrcodelib/qrcodelib.iml" />

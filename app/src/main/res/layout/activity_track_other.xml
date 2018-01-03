@@ -25,8 +25,8 @@
         rv:rv_backgroundColor="#DE88A5"
         rv:rv_cornerRadius="10dp" />
 
-    <AutoCompleteTextView
-        android:id="@+id/autoCompleteTextView"
+    <EditText
+        android:id="@+id/et_input_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
@@ -55,11 +55,23 @@
         android:text="开始追踪"
         android:textColor="#ffffff"
 
-        app:layout_constraintBottom_toBottomOf="@+id/autoCompleteTextView"
+        app:layout_constraintBottom_toBottomOf="@+id/et_input_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/autoCompleteTextView"
-        app:layout_constraintTop_toTopOf="@+id/autoCompleteTextView"
+        app:layout_constraintStart_toEndOf="@+id/et_input_name"
+        app:layout_constraintTop_toTopOf="@+id/et_input_name"
         rv:rv_backgroundColor="#DE88A5"
         rv:rv_cornerRadius="10dp" />
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView_history"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:fadingEdge="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_input_name" />
 </android.support.constraint.ConstraintLayout>
