@@ -16,7 +16,6 @@ class MyApplication : Application() {
         super.onCreate()
         INSTANCE = this
         Logger.addLogAdapter(AndroidLogAdapter())
-        LocalManager.initTrace(this)
         SDKInitializer.initialize(this)
         CrashReport.initCrashReport(getApplicationContext(), "1641f60016", false);
     }

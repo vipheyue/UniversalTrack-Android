@@ -39,7 +39,10 @@ class MainGuideFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         myTrackEntityName = RxDeviceTool.getDeviceIdIMEI(activity).toString()
+        LocalManager.initTrace(this.activity!!)
         powerManager = activity!!.getSystemService(Context.POWER_SERVICE) as PowerManager
+
+        rtv_introduce.setOnClickListener { activity!!.startActivity<IntroduceActivity>() }
 
         rtv_my_track.setOnClickListener {
             lastQueryEntityName = myTrackEntityName
@@ -47,7 +50,6 @@ class MainGuideFragment : Fragment() {
         }
         rtv_share_track.setOnClickListener { activity!!.startActivity<TrackMeActivity>() }
         rtv_track_other.setOnClickListener { activity!!.startActivity<TrackOtherActivity>() }
-
         LocalManager.mTrace.notification = sendNotify()
         LocalManager.tipOpenLocal(activity as Context)
         LocalManager.startTraceService()

@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
 
             if (showQuestDialog) {
                 questDoze()
-            }else{
+            } else {
                 moveTaskToBack(false)
             }
             return true
@@ -42,7 +42,10 @@ class MainActivity : AppCompatActivity() {
             val packageName = this.packageName
             val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
             val isIgnoring = powerManager.isIgnoringBatteryOptimizations(packageName)
-            if (!isIgnoring) {
+            if (isIgnoring) {
+                showQuestDialog = false//第二次就不要提醒了
+            } else {
+                showQuestDialog = false//第二次就不要提醒了
                 val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
                 intent.data = Uri.parse("package:" + packageName)
                 try {
@@ -50,8 +53,6 @@ class MainActivity : AppCompatActivity() {
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                 }
-                showQuestDialog=false//第二次就不要提醒了
-
             }
         }
     }

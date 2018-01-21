@@ -17,9 +17,14 @@ import com.baidu.trace.model.StatusCodes
 import com.lightworld.childtrack.utils.BitmapUtil
 import com.lightworld.childtrack.utils.CommonUtil
 import com.lightworld.childtrack.utils.MapUtil
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_map_track.*
 import org.jetbrains.anko.toast
 import java.util.*
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 
@@ -28,16 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class TrackMapFragment : Fragment() {
     lateinit var mapUtil: MapUtil
-
-    /**
-     * 查询轨迹的开始时间
-     */
-    private var startTime = CommonUtil.getCurrentTime() - 23 * 60 * 60
-
-    /**
-     * 查询轨迹的结束时间
-     */
-    private var endTime = CommonUtil.getCurrentTime()
     /**
      * 轨迹点集合
      */
@@ -61,7 +56,8 @@ class TrackMapFragment : Fragment() {
     private var sortType = SortType.asc
 
     private val mSequenceGenerator = AtomicInteger()
-
+    private lateinit var gatherDispose: Disposable
+    private var pointFilter = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -76,7 +72,29 @@ class TrackMapFragment : Fragment() {
         BitmapUtil.init()
 //        LocalManager.queryLastPoint(activity as Context)
         initListener()
-        queryHistoryTrack()
+//        queryHistoryTrack()
+        queryLastPoint(activity!!)
+        initView()
+    }
+
+    private fun initView() {
+
+        switch_filter.setOnCheckedChangeListener { buttonView, isChecked ->
+            pointFilter = isChecked
+        }
+    }
+
+    fun queryLastPoint(mContext: Context) {
+        //4.处理采集数据 异步 查询历史轨迹 功能需要单独提出来
+
+        gatherDispose = Observable.interval(0, 8, TimeUnit.SECONDS)//每秒发射一个数字出来
+                .delay(3, TimeUnit.SECONDS)
+                .subscribeOn(Schedulers.io())
+                .map {
+                    queryHistoryTrack()
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { }
     }
 
     private fun initListener() {
@@ -87,13 +105,14 @@ class TrackMapFragment : Fragment() {
                 if (StatusCodes.SUCCESS != response.getStatus()) {
                     activity?.toast(response.getMessage())
                 } else if (0 == total) {
-                    activity?.toast("未留下任何轨迹信息")
+//                    activity?.toast("未留下任何轨迹信息")
                 } else {
                     val points = response.getTrackPoints()
                     if (null != points) {
+                        trackPoints?.clear()//清除之前的
                         for (trackPoint in points) {
                             if (!CommonUtil.isZeroPoint(trackPoint.location.getLatitude(),
-                                    trackPoint.location.getLongitude())) {
+                                            trackPoint.location.getLongitude())) {
                                 trackPoints?.add(MapUtil.convertTrace2Map(trackPoint.location))
                             }
                         }
@@ -120,16 +139,27 @@ class TrackMapFragment : Fragment() {
         historyTrackRequest.entityName = lastQueryEntityName
         historyTrackRequest.pageIndex = pageIndex
         historyTrackRequest.pageSize = PAGE_SIZE
+        /**
+         * 查询轨迹的开始时间
+         */
+        var startTime = CommonUtil.getCurrentTime() - 23 * 60 * 60
 
+        /**
+         * 查询轨迹的结束时间
+         */
+        var endTime = CommonUtil.getCurrentTime()
         historyTrackRequest.startTime = startTime
         historyTrackRequest.endTime = endTime
 
         val processOption = ProcessOption()
 
-        historyTrackRequest.isProcessed = true//纠偏
-        processOption.isNeedDenoise = true//去噪
-        processOption.isNeedMapMatch = true//绑路
-        processOption.radiusThreshold = 10//精度过滤
+        if (pointFilter) {
+            historyTrackRequest.isProcessed = true//纠偏
+            processOption.isNeedDenoise = true//去噪
+            processOption.isNeedMapMatch = true//绑路
+            processOption.radiusThreshold = 10//精度过滤
+        }
+
         historyTrackRequest.supplementMode = SupplementMode.walking//步行
 
         historyTrackRequest.processOption = processOption
@@ -140,7 +170,7 @@ class TrackMapFragment : Fragment() {
     override fun onDestroy() {
         mapUtil.clear()
         trackPoints = null
-
+        gatherDispose.dispose()
         super.onDestroy()
     }
 }

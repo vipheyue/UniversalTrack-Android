@@ -18,6 +18,17 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.flyco.roundview.RoundTextView
+            android:id="@+id/rtv_introduce"
+            style="@style/MainGuideText"
+            android:layout_margin="20dp"
+            android:layout_weight="0.8"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="介绍"
+            rv:rv_backgroundColor="#A358C2" />
+
+        <com.flyco.roundview.RoundTextView
             android:id="@+id/rtv_my_track"
             style="@style/MainGuideText"
             android:layout_margin="20dp"
@@ -25,8 +36,8 @@
             android:ellipsize="end"
             android:gravity="center"
             android:singleLine="true"
-
-            android:text="我的轨迹" />
+            android:text="我的轨迹"
+            rv:rv_backgroundColor="#F7CE5A" />
 
         <com.flyco.roundview.RoundTextView
             android:id="@+id/rtv_share_track"
@@ -37,7 +48,8 @@
             android:ellipsize="end"
             android:gravity="center"
             android:singleLine="true"
-            android:text="让人追踪" />
+            android:text="让人追踪"
+            rv:rv_backgroundColor="#ED6A6D" />
 
         <com.flyco.roundview.RoundTextView
             android:id="@+id/rtv_track_other"
@@ -47,7 +59,8 @@
             android:ellipsize="end"
             android:gravity="center"
             android:singleLine="true"
-            android:text="追踪他人" />
+            android:text="追踪他人"
+            rv:rv_backgroundColor="#7DC6CB" />
 
 
     </LinearLayout>

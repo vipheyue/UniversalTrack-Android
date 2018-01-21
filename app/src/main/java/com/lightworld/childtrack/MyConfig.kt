@@ -4,7 +4,7 @@ package com.lightworld.childtrack
  * Created by heyue on 2017/12/27.
  */
 // 轨迹服务ID
-var serviceId: Long = 116378
+var serviceId: Long = 158728
 // 设备标识
 var myTrackEntityName  by Preference(MyApplication.INSTANCE, "myTrackEntityName", "defaultTraceName")
 var trackOtherEntityName by Preference(MyApplication.INSTANCE, "trackOtherEntityName", "trackOtherEntityName")

@@ -108,7 +108,6 @@ public class MapUtil {
      * 将轨迹实时定位点转换为地图坐标
      *
      * @param location
-     *
      * @return
      */
     public static LatLng convertTraceLocation2Map(TraceLocation location) {
@@ -136,13 +135,11 @@ public class MapUtil {
      * 将轨迹坐标对象转换为地图坐标对象
      *
      * @param traceLatLng
-     *
      * @return
      */
     public static LatLng convertTrace2Map(com.baidu.trace.model.LatLng traceLatLng) {
         return new LatLng(traceLatLng.latitude, traceLatLng.longitude);
     }
-
 
 
     public void updateStatus(LatLng currentPoint, boolean showMarker) {
@@ -226,6 +223,9 @@ public class MapUtil {
      */
     public void drawHistoryTrack(List<LatLng> points, SortType sortType) {
         // 绘制新覆盖物前，清空之前的覆盖物
+        if (baiduMap == null) {
+            return;
+        }
         baiduMap.clear();
         if (points == null || points.size() == 0) {
             if (null != polylineOverlay) {
@@ -295,6 +295,7 @@ public class MapUtil {
         mapStatus = builder.target(point).zoom(zoom).build();
         baiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(mapStatus));
     }
+
     public void setMapStatus(LatLng point, float zoom) {
         MapStatus.Builder builder = new MapStatus.Builder();
         mapStatus = builder.target(point).zoom(zoom).build();
