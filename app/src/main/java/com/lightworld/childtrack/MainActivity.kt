@@ -23,15 +23,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-
-            if (showQuestDialog) {
-                questDoze()
-            } else {
-                moveTaskToBack(false)
-            }
-            return true
-        }
+//        if (keyCode == KeyEvent.KEYCODE_BACK) {
+//
+//            if (showQuestDialog) {
+//                questDoze()
+//            } else {
+//                moveTaskToBack(false)
+//            }
+//            return true
+//        }
         return super.onKeyDown(keyCode, event)
     }
 

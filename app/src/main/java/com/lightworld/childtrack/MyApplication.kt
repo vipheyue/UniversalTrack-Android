@@ -4,7 +4,7 @@ import android.app.Application
 import com.baidu.mapapi.SDKInitializer
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
-import com.tencent.bugly.crashreport.CrashReport
+import com.tencent.bugly.Bugly
 
 
 /**
@@ -17,7 +17,7 @@ class MyApplication : Application() {
         INSTANCE = this
         Logger.addLogAdapter(AndroidLogAdapter())
         SDKInitializer.initialize(this)
-        CrashReport.initCrashReport(getApplicationContext(), "1641f60016", false);
+        Bugly.init(getApplicationContext(), "be9595dd5d", false);
     }
 
     companion object {
