@@ -5,20 +5,15 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.location.LocationManager
 import android.os.Handler
-import android.os.Message
 import android.os.PowerManager
 import android.provider.Settings
 import com.baidu.trace.LBSTraceClient
 import com.baidu.trace.Trace
 import com.baidu.trace.api.entity.LocRequest
 import com.baidu.trace.api.entity.OnEntityListener
-import com.baidu.trace.api.track.LatestPointRequest
-import com.baidu.trace.api.track.LatestPointResponse
-import com.baidu.trace.api.track.OnTrackListener
-import com.baidu.trace.model.*
+import com.baidu.trace.model.OnTraceListener
+import com.baidu.trace.model.StatusCodes
 import com.lightworld.childtrack.receiver.TrackReceiver
-import com.lightworld.childtrack.utils.CommonUtil
-import com.lightworld.childtrack.utils.MapUtil
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -28,7 +23,6 @@ import org.jetbrains.anko.noButton
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.yesButton
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
 
 
 /**
@@ -39,7 +33,6 @@ object LocalManager {
     lateinit var mTrace: Trace
     lateinit var mTraceClient: LBSTraceClient
     private lateinit var realLocDispose: Disposable
-    private lateinit var gatherDispose: Disposable
     private var powerManager: PowerManager? = null
 
     private var trackReceiver: TrackReceiver? = null
@@ -72,48 +65,30 @@ object LocalManager {
     }
 
     // 3.开启服务
-    fun startTraceService() {
+    fun startTraceService(mTraceListener: OnTraceListener?) {
         mTraceClient.startTrace(mTrace, mTraceListener)
     }
 
     // 停止服务
-    fun stopTraceService() {
+    fun stopTraceService(mTraceListener:OnTraceListener?) {
         mTraceClient.stopTrace(mTrace, mTraceListener)
     }
 
     // 开启采集
-    fun startGather() {
+    fun startGather(mTraceListener: OnTraceListener?) {
         Handler().postDelayed(Runnable {
             mTraceClient.startGather(mTraceListener)
         }, 4000)
     }
 
     //停止采集
-    fun stopGather() {
+    fun stopGather(mTraceListener: OnTraceListener?) {
         mTraceClient.stopGather(mTraceListener)
-        gatherDispose?.dispose()
     }
 
 
-    fun queryLastPoint(mContext: Context) {
-        //4.处理采集数据 异步 查询历史轨迹 功能需要单独提出来
 
-        gatherDispose = Observable.interval(0, 5, TimeUnit.SECONDS)//每秒发射一个数字出来
-                .delay(3, TimeUnit.SECONDS)
-                .subscribeOn(Schedulers.io())
-                .map {
-                    val request = LatestPointRequest(AtomicInteger().incrementAndGet(), serviceId, myTrackEntityName)
-                    val processOption = ProcessOption()
-                    processOption.isNeedDenoise = true
-                    processOption.radiusThreshold = 100
-                    request.processOption = processOption
-                    mTraceClient.queryLatestPoint(request, trackListener)
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { }
-    }
-
-    fun dealRealLoc() {
+    fun dealRealLoc(entityListener: OnEntityListener) {
         realLocDispose = Observable.interval(0, 10, TimeUnit.SECONDS)//每秒发射一个数字出来
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -129,75 +104,11 @@ object LocalManager {
         mTraceClient.stopRealTimeLoc()
     }
 
-    object mTraceListener : OnTraceListener {
-        override fun onBindServiceCallback(p0: Int, p1: String?) {
-        }
-
-        override fun onInitBOSCallback(p0: Int, p1: String?) {
-        }
-
-        // 开启服务回调
-        override fun onStartTraceCallback(errorNo: Int, message: String) {
-            if (StatusCodes.SUCCESS == errorNo || StatusCodes.START_TRACE_NETWORK_CONNECT_FAILED <= errorNo) {
-                registerReceiver()
-            }
-        }
-
-        // 停止服务回调
-        override fun onStopTraceCallback(errorNo: Int, message: String) {
-            if (StatusCodes.SUCCESS == errorNo || StatusCodes.CACHE_TRACK_NOT_UPLOAD == errorNo) {
-                unregisterPowerReceiver()
-            }
-        }
-
-        // 开启采集回调
-        override fun onStartGatherCallback(status: Int, message: String) {}
-
-        // 停止采集回调
-        override fun onStopGatherCallback(status: Int, message: String) {
-
-        }
-
-        // 推送回调
-        override fun onPushCallback(messageNo: Byte, message: PushMessage) {}
-    }
-
-
-    /**
-     * 轨迹监听器(用于接收纠偏后实时位置回调)
-     */
-    object trackListener : OnTrackListener() {
-        override fun onLatestPointCallback(response: LatestPointResponse?) {
-            if (StatusCodes.SUCCESS != response?.getStatus()) {
-                return
-            }
-
-            val point = response.getLatestPoint()
-            if (null == point || CommonUtil.isZeroPoint(point.location.getLatitude(), point.location.getLongitude())) {
-                return
-            }
-
-            val currentLatLng = MapUtil.convertTrace2Map(point.location) ?: return
-            MapUtil.getInstance().updateStatus(currentLatLng, true)
-        }
-    }
-
-    object entityListener : OnEntityListener() {
-        override fun onReceiveLocation(p0: TraceLocation?) {
-            super.onReceiveLocation(p0)
-        }
-    }
-
-    object realTimeHandler : Handler() {
-        override fun handleMessage(msg: Message) {
-            super.handleMessage(msg)
-        }
-    }
 
     /**
      * 注册广播（电源锁、GPS状态）
      */
-    private fun registerReceiver() {
+     fun registerReceiver() {
         if (isRegisterReceiver) {
             return
         }
@@ -219,7 +130,7 @@ object LocalManager {
 
     }
 
-    private fun unregisterPowerReceiver() {
+     fun unregisterPowerReceiver() {
         if (!isRegisterReceiver) {
             return
         }
@@ -228,7 +139,6 @@ object LocalManager {
         }
         isRegisterReceiver = false
     }
-
 
 
 }

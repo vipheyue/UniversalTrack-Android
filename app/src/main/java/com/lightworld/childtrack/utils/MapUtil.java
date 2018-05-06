@@ -1,7 +1,6 @@
 package com.lightworld.childtrack.utils;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -16,7 +15,6 @@ import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.OverlayOptions;
-import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.LatLngBounds;
 import com.baidu.mapapi.utils.CoordinateConverter;
@@ -262,12 +260,12 @@ public class MapUtil {
                 .icon(bmEnd).zIndex(9).draggable(true);
 
         // 添加路线（轨迹）
-        OverlayOptions polylineOptions = new PolylineOptions().width(10)
-                .color(Color.BLUE).points(points);
+//        OverlayOptions polylineOptions = new PolylineOptions().width(10)
+//                .color(Color.BLUE).points(points);
 
         baiduMap.addOverlay(startOptions);
         baiduMap.addOverlay(endOptions);
-        polylineOverlay = baiduMap.addOverlay(polylineOptions);
+//        polylineOverlay = baiduMap.addOverlay(polylineOptions);
 
         OverlayOptions markerOptions =
                 new MarkerOptions().flat(true).anchor(0.5f, 0.5f).icon(bmArrowPoint)

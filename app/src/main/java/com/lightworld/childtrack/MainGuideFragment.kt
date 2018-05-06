@@ -17,6 +17,10 @@ import android.support.v4.app.NotificationCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.baidu.trace.model.OnTraceListener
+import com.baidu.trace.model.PushMessage
+import com.baidu.trace.model.StatusCodes
+import com.lightworld.childtrack.LocalManager.unregisterPowerReceiver
 import com.lightworld.childtrack.helper.ClipboardManagerHelper
 import com.lightworld.childtrack.utils.RxDeviceTool
 import kotlinx.android.synthetic.main.fragment_main_guide.*
@@ -52,8 +56,8 @@ class MainGuideFragment : Fragment() {
         rtv_track_other.setOnClickListener { activity!!.startActivity<TrackOtherActivity>() }
         LocalManager.mTrace.notification = sendNotify()
         LocalManager.tipOpenLocal(activity as Context)
-        LocalManager.startTraceService()
-        LocalManager.startGather()
+        LocalManager.startTraceService(mTraceListener)
+        LocalManager.startGather(mTraceListener)
         //TODO 目前假设没有任何其他 情况发生 需要单独处理
 //        LocalManager.dealRealLoc()
         ClipboardManagerHelper.discernSymbol(activity!!)
@@ -61,7 +65,8 @@ class MainGuideFragment : Fragment() {
     }
 
     override fun onDestroy() {
-        LocalManager.stopTraceService()
+        LocalManager.stopGather(mTraceListener)
+        LocalManager.stopTraceService(mTraceListener)
         super.onDestroy()
     }
 
@@ -106,4 +111,38 @@ class MainGuideFragment : Fragment() {
 //        notificationManager.notify(NOTIFICATION_ID, mBuilder.build())
         return mBuilder.build()
     }
+
+    object mTraceListener : OnTraceListener {
+        override fun onBindServiceCallback(p0: Int, p1: String?) {
+        }
+
+        override fun onInitBOSCallback(p0: Int, p1: String?) {
+        }
+
+        // 开启服务回调
+        override fun onStartTraceCallback(errorNo: Int, message: String) {
+            if (StatusCodes.SUCCESS == errorNo || StatusCodes.START_TRACE_NETWORK_CONNECT_FAILED <= errorNo) {
+                LocalManager.registerReceiver()
+            }
+        }
+
+        // 停止服务回调
+        override fun onStopTraceCallback(errorNo: Int, message: String) {
+            if (StatusCodes.SUCCESS == errorNo || StatusCodes.CACHE_TRACK_NOT_UPLOAD == errorNo) {
+                unregisterPowerReceiver()
+            }
+        }
+
+        // 开启采集回调
+        override fun onStartGatherCallback(status: Int, message: String) {}
+
+        // 停止采集回调
+        override fun onStopGatherCallback(status: Int, message: String) {
+
+        }
+
+        // 推送回调
+        override fun onPushCallback(messageNo: Byte, message: PushMessage) {}
+    }
+
 }// Required empty public constructor
